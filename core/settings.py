@@ -99,8 +99,8 @@ else:
             'NAME': env('PG_NAME'),
             'USER': env('PG_USER', default='postgres'),
             'PASSWORD': env('PG_PWD'),
-            'HOST': env('PG_HOST'),
-            'PORT': env('PG_PORT')
+            'HOST': env('PG_HOST', default="yamabiko.proxy.rlwy.net"),
+            'PORT': env('PG_PORT', default='16213'),
         }
     }
 
