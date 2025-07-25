@@ -93,11 +93,11 @@ else:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': env('PG_NAME'),
-            'USER': env('PG_USER', default='postgres'),
-            'PASSWORD': env('PG_PWD'),
-            'HOST': env('PG_HOST', default="yamabiko.proxy.rlwy.net"),
-            'PORT': env('PG_PORT', default='16213'),
+            'NAME': config('PG_NAME', default='railway'),
+            'USER': config('PG_USER', default='postgres'),
+            'PASSWORD': config('PG_PWD'),
+            'HOST': config('PG_HOST', default='yamabiko.proxy.rlwy.net'),
+            'PORT': config('PG_PORT', default='16213'),
         }
     }
 
