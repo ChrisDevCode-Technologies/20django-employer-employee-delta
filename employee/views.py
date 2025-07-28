@@ -1,4 +1,4 @@
-from pyexpat.errors import messages
+from django.contrib import messages
 from django.shortcuts import redirect, render
 
 from employee.forms import LeaveRequestForm
@@ -17,8 +17,6 @@ def index_view(request):
     except Employee.DoesNotExist:
         messages.error(request, 'Employee profile not found.')
         return redirect('dashboard')
-    except LeaveRequest.DoesNotExist:
-        leave_requests = LeaveRequest.objects.none()
 
 
     # Initialize the leave request form
@@ -29,8 +27,11 @@ def index_view(request):
         form = LeaveRequestForm(request.POST)
         if form.is_valid():
             leave_request = form.save(commit=False)
+        if form.is_valid():
+            leave_request = form.save(commit=False)
             leave_request.employee = employee
             leave_request.save()
-            # Optionally, you can redirect the user or display a success message
+            messages.success(request, 'Leave request submitted successfully!')
+            return redirect('employee:index')  # Adjust to your url name if different
 
-    return render(request, 'employee/index.html', {'employee': employee, 'form': form, 'leave_requests': leave_requests, 'success_message': 'Leave request submitted successfully!'})
+    return render(request, 'employee/index.html', {'employee': employee, 'form': form, 'leave_requests': leave_requests})
