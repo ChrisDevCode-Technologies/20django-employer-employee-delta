@@ -37,3 +37,5 @@ class LeaveRequest(models.Model):
 
     def __str__(self):
         return f"{self.employee.user.first_name} {self.employee.user.last_name} - {self.status}"
+    
+    
