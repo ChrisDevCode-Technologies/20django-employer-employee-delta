@@ -33,7 +33,7 @@ environ.Env.read_env(BASE_DIR / '.env')
 SECRET_KEY = 'django-insecure-h^j&42dbs%9-ihtq&wis)m)*2_u@!77#09rqbbtp-_kwq2gba1'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = env('DEBUG')
+DEBUG = True
 
 ALLOWED_HOSTS = ['127.0.0.1', '20django-employer-employee-delta-production.up.railway.app', 'localhost']
 # Application definition
@@ -45,9 +45,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts.apps.AccountsConfig',
     'employee.apps.EmployeeConfig',
     'whitenoise.runserver_nostatic',
-    'accounts',
 ]
 
 MIDDLEWARE = [
