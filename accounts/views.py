@@ -42,7 +42,7 @@ def custom_login_view(request):
             if user is not None:
                 login(request, user)
                 messages.success(request, f'Welcome back, {username}!')
-                return redirect('home')
+                return redirect('dashboard')
         else:
             messages.error(request, 'Invalid username or password.')
     else:
@@ -54,6 +54,8 @@ def custom_login_view(request):
 def dashboard_view(request):
     return render(request, 'dashboard.html')
 
+def home_view(request):
+    return render(request, 'home.html')
 
 def logout_view(request):
     if request.user.is_authenticated:
