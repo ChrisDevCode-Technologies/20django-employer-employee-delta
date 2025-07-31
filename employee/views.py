@@ -24,9 +24,7 @@ def index_view(request):
 
     # if the user posts the form, save the leave request
     if request.method == 'POST':
-    # if the user posts the form, save the leave request
-    success_message = None
-    if request.method == 'POST':
+        success_message = None
         form = LeaveRequestForm(request.POST)
         if form.is_valid():
             leave_request = form.save(commit=False)
