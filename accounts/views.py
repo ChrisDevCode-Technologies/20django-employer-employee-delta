@@ -24,7 +24,7 @@ class RegisterView(CreateView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-            return redirect('login')
+            return redirect('dashboard')
         return super().get(request, *args, **kwargs)
 
 @csrf_protect
