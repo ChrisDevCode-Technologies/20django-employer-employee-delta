@@ -1,0 +1,347 @@
+{% extends 'base.html' %}
+
+{% block title %}Employer Dashboard{% endblock %}
+{% block page_title %}Employer Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-users fa-2x mb-3"></i>
+                <h4>{{ total_employees }}</h4>
+                <p class="mb-0">Total Employees</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card warning">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-3"></i>
+                <h4>{{ pending_count }}</h4>
+                <p class="mb-0">Pending Requests</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card success">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                <h4>{{ approved_count }}</h4>
+                <p class="mb-0">Approved Requests</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card danger">
+            <div class="card-body text-center">
+                <i class="fas fa-times-circle fa-2x mb-3"></i>
+                <h4>{{ rejected_count }}</h4>
+                <p class="mb-0">Rejected Requests</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Pending Leave Requests -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-exclamation-triangle me-2"></i>Pending Leave Requests
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if pending_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Employee</th>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Reason</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in pending_requests %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                <i class="fas fa-user-circle fa-2x text-muted me-2"></i>
+                                                <div>
+                                                    <strong>{{ request.employee.user.get_full_name|default:request.employee.user.username }}</strong>
+                                                    <br><small class="text-muted">{{ request.employee.department }}</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ request.start_date|date:"M d, Y" }}</td>
+                                        <td>{{ request.end_date|date:"M d, Y" }}</td>
+                                        <td>{{ request.reason|truncatechars:30 }}</td>
+                                        <td>
+                                            <form method="post" action="{% url 'manage_leave' request.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <button type="submit" name="action" value="approve" class="btn btn-success btn-sm me-1" 
+                                                        onclick="return confirm('Approve this leave request?')">
+                                                    <i class="fas fa-check me-1"></i>Approve
+                                                </button>
+                                                <button type="submit" name="action" value="reject" class="btn btn-danger btn-sm" 
+                                                        onclick="return confirm('Reject this leave request?')">
+                                                    <i class="fas fa-times me-1"></i>Reject
+                                                </button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-check-circle fa-3x text-success mb-3"></i>
+                        <h5 class="text-muted">No pending requests</h5>
+                        <p class="text-muted">All leave requests have been processed!</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <!-- Recent Activity -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-info text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-chart-line me-2"></i>Quick Overview
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="mb-3">
+                    <h6 class="text-muted">Department Distribution</h6>
+                    {% regroup employees by department as department_list %}
+                    {% for department in department_list %}
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <span>{{ department.grouper }}</span>
+                            <span class="badge bg-primary">{{ department.list|length }}</span>
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <div class="mt-4">
+                    <h6 class="text-muted">Recent Activity</h6>
+                    {% if leave_requests %}
+                        <div class="list-group list-group-flush">
+                            {% for request in leave_requests|slice:":5" %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center py-2">
+                                    <div>
+                                        <small class="text-muted">{{ request.created_at|date:"M d" }}</small>
+                                        <p class="mb-0 small">{{ request.employee.user.get_full_name|default:request.employee.user.username }}</p>
+                                    </div>
+                                    <span class="badge bg-{{ request.status|lower == 'approved' and 'success' or request.status|lower == 'rejected' and 'danger' or 'warning' }} small">
+                                        {{ request.status }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted small">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Employees -->
+<div class="row">
+    <div class="col-12 mb-4">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-users me-2"></i>All Employees
+                </h5>
+                <div class="input-group" style="width: 300px;">
+                    <input type="text" class="form-control" placeholder="Search employees..." id="employeeSearch">
+                    <span class="input-group-text"><i class="fas fa-search"></i></span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="employeeTable">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Position</th>
+                                <th>Department</th>
+                                <th>Hire Date</th>
+                                <th>Status</th>
+                                <th>Leave Requests</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for employee in employees %}
+                                <tr>
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle fa-2x text-muted me-2"></i>
+                                            <div>
+                                                <strong>{{ employee.user.get_full_name|default:employee.user.username }}</strong>
+                                                {% if employee.is_employer %}
+                                                    <span class="badge bg-primary ms-2">Employer</span>
+                                                {% endif %}
+                                                <br><small class="text-muted">{{ employee.user.email|default:"No email" }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ employee.position }}</td>
+                                    <td>{{ employee.department }}</td>
+                                    <td>{{ employee.date_of_hire|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if employee.user.is_active %}
+                                            <span class="badge bg-success">Active</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary">Inactive</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% with employee.leaverequest_set.count as request_count %}
+                                            {% if request_count > 0 %}
+                                                <span class="badge bg-info">{{ request_count }} request{{ request_count|pluralize }}</span>
+                                            {% else %}
+                                                <span class="text-muted">No requests</span>
+                                            {% endif %}
+                                        {% endwith %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- All Leave Requests -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-calendar-alt me-2"></i>All Leave Requests
+                </h5>
+                <div class="btn-group" role="group">
+                    <input type="radio" class="btn-check" name="statusFilter" id="all" value="all" checked>
+                    <label class="btn btn-outline-primary" for="all">All</label>
+                    
+                    <input type="radio" class="btn-check" name="statusFilter" id="pending" value="pending">
+                    <label class="btn btn-outline-warning" for="pending">Pending</label>
+                    
+                    <input type="radio" class="btn-check" name="statusFilter" id="approved" value="approved">
+                    <label class="btn btn-outline-success" for="approved">Approved</label>
+                    
+                    <input type="radio" class="btn-check" name="statusFilter" id="rejected" value="rejected">
+                    <label class="btn btn-outline-danger" for="rejected">Rejected</label>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover" id="leaveRequestsTable">
+                        <thead>
+                            <tr>
+                                <th>Employee</th>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                                <th>Days</th>
+                                <th>Reason</th>
+                                <th>Status</th>
+                                <th>Submitted</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for request in leave_requests %}
+                                <tr data-status="{{ request.status|lower }}">
+                                    <td>
+                                        <div class="d-flex align-items-center">
+                                            <i class="fas fa-user-circle fa-lg text-muted me-2"></i>
+                                            <div>
+                                                <strong>{{ request.employee.user.get_full_name|default:request.employee.user.username }}</strong>
+                                                <br><small class="text-muted">{{ request.employee.department }}</small>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td>{{ request.start_date|date:"M d, Y" }}</td>
+                                    <td>{{ request.end_date|date:"M d, Y" }}</td>
+                                    <td>{{ request.duration_days }} day{{ request.duration_days|pluralize }}</td>
+                                    <td>{{ request.reason|truncatechars:40 }}</td>
+                                    <td>
+                                        <span class="badge bg-{{ request.status|lower == 'approved' and 'success' or request.status|lower == 'rejected' and 'danger' or 'warning' }}">
+                                            {{ request.status }}
+                                        </span>
+                                    </td>
+                                    <td>{{ request.created_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        {% if request.status == 'Pending' %}
+                                            <form method="post" action="{% url 'manage_leave' request.id %}" class="d-inline">
+                                                {% csrf_token %}
+                                                <div class="btn-group btn-group-sm">
+                                                    <button type="submit" name="action" value="approve" class="btn btn-success" 
+                                                            onclick="return confirm('Approve this leave request?')">
+                                                        <i class="fas fa-check"></i>
+                                                    </button>
+                                                    <button type="submit" name="action" value="reject" class="btn btn-danger" 
+                                                            onclick="return confirm('Reject this leave request?')">
+                                                        <i class="fas fa-times"></i>
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        {% else %}
+                                            <span class="text-muted">No action</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Employee search functionality
+document.getElementById('employeeSearch').addEventListener('keyup', function() {
+    const searchTerm = this.value.toLowerCase();
+    const tableRows = document.querySelectorAll('#employeeTable tbody tr');
+    
+    tableRows.forEach(row => {
+        const text = row.textContent.toLowerCase();
+        row.style.display = text.includes(searchTerm) ? '' : 'none';
+    });
+});
+
+// Leave request status filter
+document.querySelectorAll('input[name="statusFilter"]').forEach(radio => {
+    radio.addEventListener('change', function() {
+        const status = this.value;
+        const tableRows = document.querySelectorAll('#leaveRequestsTable tbody tr');
+        
+        tableRows.forEach(row => {
+            if (status === 'all' || row.dataset.status === status) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+});
+</script>
+{% endblock %}

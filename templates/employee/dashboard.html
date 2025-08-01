@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block title %}Employee Dashboard{% endblock %}
+{% block page_title %}Employee Dashboard{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Statistics Cards -->
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card">
+            <div class="card-body text-center">
+                <i class="fas fa-clock fa-2x mb-3"></i>
+                <h4>{{ pending_requests }}</h4>
+                <p class="mb-0">Pending Requests</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card success">
+            <div class="card-body text-center">
+                <i class="fas fa-check-circle fa-2x mb-3"></i>
+                <h4>{{ approved_requests }}</h4>
+                <p class="mb-0">Approved Requests</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card danger">
+            <div class="card-body text-center">
+                <i class="fas fa-times-circle fa-2x mb-3"></i>
+                <h4>{{ rejected_requests }}</h4>
+                <p class="mb-0">Rejected Requests</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-3 mb-4">
+        <div class="card stat-card warning">
+            <div class="card-body text-center">
+                <i class="fas fa-calendar fa-2x mb-3"></i>
+                <h4>{{ leave_requests.count }}</h4>
+                <p class="mb-0">Total Requests</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <!-- Employee Profile Summary -->
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-header bg-primary text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-user me-2"></i>Profile Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="text-center mb-3">
+                    <i class="fas fa-user-circle fa-4x text-muted"></i>
+                </div>
+                <table class="table table-borderless">
+                    <tr>
+                        <td><strong>Name:</strong></td>
+                        <td>{{ user.get_full_name|default:user.username }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Email:</strong></td>
+                        <td>{{ user.email|default:"Not provided" }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Position:</strong></td>
+                        <td>{{ employee.position }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Department:</strong></td>
+                        <td>{{ employee.department }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hire Date:</strong></td>
+                        <td>{{ employee.date_of_hire|date:"M d, Y" }}</td>
+                    </tr>
+                </table>
+                <a href="{% url 'employee_profile' %}" class="btn btn-outline-primary w-100">
+                    <i class="fas fa-edit me-2"></i>Edit Profile
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header bg-success text-white">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-bolt me-2"></i>Quick Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <div class="d-grid">
+                            <a href="{% url 'submit_leave' %}" class="btn btn-primary btn-lg">
+                                <i class="fas fa-calendar-plus me-2"></i>
+                                Submit Leave Request
+                            </a>
+                        </div>
+                    </div>
+                    <div class="col-md-6 mb-3">
+                        <div class="d-grid">
+                            <a href="{% url 'employee_profile' %}" class="btn btn-outline-primary btn-lg">
+                                <i class="fas fa-user-edit me-2"></i>
+                                Update Profile
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Activity -->
+                <div class="mt-4">
+                    <h6 class="text-muted mb-3">Recent Activity</h6>
+                    {% if leave_requests %}
+                        <div class="list-group list-group-flush">
+                            {% for request in leave_requests|slice:":3" %}
+                                <div class="list-group-item d-flex justify-content-between align-items-center">
+                                    <div>
+                                        <small class="text-muted">{{ request.created_at|date:"M d, Y" }}</small>
+                                        <p class="mb-0">Leave request: {{ request.start_date|date:"M d" }} - {{ request.end_date|date:"M d" }}</p>
+                                    </div>
+                                    <span class="badge bg-{{ request.status|lower == 'approved' and 'success' or request.status|lower == 'rejected' and 'danger' or 'warning' }}">
+                                        {{ request.status }}
+                                    </span>
+                                </div>
+                            {% endfor %}
+                        </div>
+                    {% else %}
+                        <p class="text-muted">No recent activity</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Leave Requests History -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header d-flex justify-content-between align-items-center">
+                <h5 class="card-title mb-0">
+                    <i class="fas fa-history me-2"></i>Leave Requests History
+                </h5>
+                <a href="{% url 'submit_leave' %}" class="btn btn-primary btn-sm">
+                    <i class="fas fa-plus me-1"></i>New Request
+                </a>
+            </div>
+            <div class="card-body">
+                {% if leave_requests %}
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
+                                <tr>
+                                    <th>Start Date</th>
+                                    <th>End Date</th>
+                                    <th>Days</th>
+                                    <th>Reason</th>
+                                    <th>Status</th>
+                                    <th>Submitted</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for request in leave_requests %}
+                                    <tr>
+                                        <td>{{ request.start_date|date:"M d, Y" }}</td>
+                                        <td>{{ request.end_date|date:"M d, Y" }}</td>
+                                        <td>{{ request.duration_days }} day{{ request.duration_days|pluralize }}</td>
+                                        <td>{{ request.reason|truncatechars:50 }}</td>
+                                        <td>
+                                            <span class="badge bg-{{ request.status|lower == 'approved' and 'success' or request.status|lower == 'rejected' and 'danger' or 'warning' }}">
+                                                {{ request.status }}
+                                            </span>
+                                        </td>
+                                        <td>{{ request.created_at|date:"M d, Y" }}</td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                {% else %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-calendar-times fa-3x text-muted mb-3"></i>
+                        <h5 class="text-muted">No leave requests yet</h5>
+                        <p class="text-muted">Submit your first leave request to get started!</p>
+                        <a href="{% url 'submit_leave' %}" class="btn btn-primary">
+                            <i class="fas fa-calendar-plus me-2"></i>Submit Leave Request
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

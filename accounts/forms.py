@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from .models import UserProfile
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
@@ -17,10 +18,13 @@ class CustomUserCreationForm(UserCreationForm):
         'class': 'form-control',
         'placeholder': 'Enter your last name'
     }))
+    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True, widget=forms.Select(attrs={
+        'class': 'form-control'
+    }))
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'role')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -54,10 +58,16 @@ class CustomUserCreationForm(UserCreationForm):
         user.email = self.cleaned_data['email']
         user.first_name = self.cleaned_data['first_name']
         user.last_name = self.cleaned_data['last_name']
+        
         if commit:
             user.save()
+            # Create the UserProfile
+            UserProfile.objects.create(
+                user=user,
+                role=self.cleaned_data['role']
+            )
         return user
-
+    
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control',

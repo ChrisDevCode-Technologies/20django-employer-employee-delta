@@ -41,6 +41,9 @@ class UserProfile(models.Model):
         auto_now=True
     )
 
-def __str__(self):
-    username = self.user.username if self.user else "Unknown User"
-    return f"{username}'s Profile - {self.role}"
+    def get_role(self):
+        return self.role
+
+    def __str__(self):
+        username = self.user.username if self.user else "Unknown User"
+        return f"{username}'s Profile - {self.role}"

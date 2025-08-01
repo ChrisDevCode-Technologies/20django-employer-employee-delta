@@ -9,6 +9,7 @@ from django.utils.decorators import method_decorator
 from django.views.generic import CreateView, TemplateView
 from django.urls import reverse_lazy
 from .forms import CustomUserCreationForm, CustomAuthenticationForm
+from .models import UserProfile
 
 @method_decorator([sensitive_post_parameters(), csrf_protect, never_cache], name='dispatch')
 class RegisterView(CreateView):
@@ -51,8 +52,10 @@ def custom_login_view(request):
     return render(request, 'login.html', {'form': form})
 
 @login_required
-def dashboard_view(request):
-    return render(request, 'dashboard.html')
+def profile(request):
+    role = 'employee'
+    print(UserProfile.objects.all())
+    return render(request, 'profile.html', {'role': role})
 
 def home_view(request):
     return render(request, 'home.html')

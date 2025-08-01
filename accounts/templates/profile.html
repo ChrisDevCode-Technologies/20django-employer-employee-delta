@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - Tajiri{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Profile</h4>
+            </div>
+            <div class="card-body">
+                <h5>Welcome, {{ user.get_full_name|default:user.username }}!</h5>
+                <p class="text-muted">You are successfully logged in to the system.</p>
+                <p>Go to <a href="/{{ role }}">Dashboard</a></p>
+                
+                <div class="row mt-4">
+                    <div class="col-md-6">
+                        <h6>Account Information</h6>
+                        <ul class="list-unstyled">
+                            <li><strong>Username:</strong> {{ user.username }}</li>
+                            <li><strong>Email:</strong> {{ user.email }}</li>
+                            <li><strong>First Name:</strong> {{ user.first_name|default:"Not provided" }}</li>
+                            <li><strong>Last Name:</strong> {{ user.last_name|default:"Not provided" }}</li>
+                            <li><strong>Date Joined:</strong> {{ user.date_joined|date:"F d, Y" }}</li>
+                            <li><strong>Last Login:</strong> {{ user.last_login|date:"F d, Y H:i" }}</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>Quick Actions</h6>
+                        <div class="d-grid gap-2">
+                            <a href="{% url 'logout' %}" class="btn btn-outline-danger">Logout</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

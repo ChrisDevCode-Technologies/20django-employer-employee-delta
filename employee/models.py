@@ -19,8 +19,6 @@ class Employee(models.Model):
         return f"{self.user.first_name} {self.user.last_name} - {self.position}"
     
 
-# This model is used to store leave requests made by employees
-# if an employee's leave request is approved, the User object associated with the request should update it's is_active status
 class LeaveRequest(models.Model):
     employee = models.ForeignKey(Employee, on_delete=models.CASCADE)
     start_date = models.DateField()
@@ -34,6 +32,11 @@ class LeaveRequest(models.Model):
         self.save()
         self.employee.user.is_active = False
         self.employee.user.save()
+
+    @property
+    def duration_days(self):
+        """Calculate the number of days between start and end date (inclusive)"""
+        return (self.end_date - self.start_date).days + 1
 
     def __str__(self):
         return f"{self.employee.user.first_name} {self.employee.user.last_name} - {self.status}"
