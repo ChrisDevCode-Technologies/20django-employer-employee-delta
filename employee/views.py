@@ -16,7 +16,7 @@ def index_view(request):
         leave_requests = LeaveRequest.objects.filter(employee=employee)
     except Employee.DoesNotExist:
         messages.error(request, 'Employee profile not found.')
-        return redirect('dashboard')
+        return redirect('profile')
 
 
     # Initialize the leave request form
@@ -32,7 +32,7 @@ def index_view(request):
             leave_request.employee = employee
             leave_request.save()
             messages.success(request, 'Leave request submitted successfully!')
-            return redirect('employee:index')  # Adjust to your url name if different
+            return redirect('employee:dashboard')  # Adjust to your url name if different
 
     return render(request, 'employee/index.html', {'employee': employee, 'form': form, 'leave_requests': leave_requests})
 

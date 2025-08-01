@@ -3,6 +3,7 @@ from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
 from django.contrib.auth.models import User
 from django.contrib.auth.password_validation import validate_password
 from django.core.exceptions import ValidationError
+from .models import UserProfile
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, widget=forms.EmailInput(attrs={
@@ -17,10 +18,13 @@ class CustomUserCreationForm(UserCreationForm):
         'class': 'form-control',
         'placeholder': 'Enter your last name'
     }))
+    role = forms.ChoiceField(choices=UserProfile.ROLE_CHOICES, required=True, widget=forms.Select(attrs={
+        'class': 'form-control'
+    }))
 
     class Meta:
         model = User
-        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2')
+        fields = ('username', 'first_name', 'last_name', 'email', 'password1', 'password2', 'role')
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -39,7 +43,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if User.objects.filter(email=email).exists():
+        if UserProfile.objects.filter(email=email).exists():
             raise ValidationError("A user with this email already exists.")
         return email
 
@@ -47,6 +51,22 @@ class CustomUserCreationForm(UserCreationForm):
         password1 = self.cleaned_data.get('password1')
         if password1:
             validate_password(password1)
+        return password1
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        user.email = self.cleaned_data['email']
+        user.first_name = self.cleaned_data['first_name']
+        user.last_name = self.cleaned_data['last_name']
+        
+        if commit:
+            user.save()
+            # Create the UserProfile
+            UserProfile.objects.create(
+                user=user,
+                role=self.cleaned_data['role']
+            )
+        return user
         return password1
 
     def save(self, commit=True):
