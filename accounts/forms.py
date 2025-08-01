@@ -67,7 +67,7 @@ class CustomUserCreationForm(UserCreationForm):
                 role=self.cleaned_data['role']
             )
         return user
-        return password1
+    
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control',
