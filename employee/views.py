@@ -27,8 +27,6 @@ def index_view(request):
         form = LeaveRequestForm(request.POST)
         if form.is_valid():
             leave_request = form.save(commit=False)
-        if form.is_valid():
-            leave_request = form.save(commit=False)
             leave_request.employee = employee
             leave_request.save()
             messages.success(request, 'Leave request submitted successfully!')
@@ -36,27 +34,6 @@ def index_view(request):
 
     return render(request, 'employee/index.html', {'employee': employee, 'form': form, 'leave_requests': leave_requests})
 
-# lgjldf
-# @login_required
-# def employer_dashboard(request):
-#     """Employer dashboard showing all employees and leave requests"""
-#     try:
-#         current_employee = Employee.objects.get(user=request.user)
-        
-#         # Check if user is an employer
-#         if not current_employee.is_employer:
-#             messages.error(request, 'Access denied. You are not authorized to view this page.')
-#             return redirect('employee_dashboard')
-        
-#         # Get all employees
-#         employees = Employee.objects.all().order_by('user__first_name')
-        
-#         # Get all leave requests
-#         leave_requests = LeaveRequest.objects.all().order_by('-created_at')
-        
-#         # Get pending leave requests
-#         pending_requests = LeaveRequest.objects.filter(status='Pending').order_by('-created_at')
-        
 #         # Calculate statistics
 #         total_employees = employees.count()
 #         total_requests = leave_requests.count()

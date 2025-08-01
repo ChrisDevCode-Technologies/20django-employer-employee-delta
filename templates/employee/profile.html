@@ -41,13 +41,19 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span>Approved Requests:</span>
-                    <span class="badge bg-success">{{ employee.leaverequest_set|dictsort:"status"|slice:":approved"|length }}</span>
+                    <span class="badge bg-success">{{ employee.leaverequest_set.all|filter:"status=approved"|length }}</span>
                 </div>
                 <div class="d-flex justify-content-between align-items-center mb-2">
                     <span>Pending Requests:</span>
-                    <span class="badge bg-warning">{{ employee.leaverequest_set|dictsort:"status"|slice:":pending"|length }}</span>
+                    {% with pending_requests=employee.leaverequest_set.filter(status="pending").count %}
+                    <span class="badge bg-warning">{{ pending_requests }}</span>
+                    {% endwith %}
                 </div>
-                <div class="d-flex justify-content-between align-items-center">
+                    {% with rejected_requests=employee.leaverequest_set.all|dictsort:"status" %}
+                    <span class="badge bg-danger">
+                        {{ rejected_requests|length }}
+                    </span>
+                    {% endwith %}
                     <span>Rejected Requests:</span>
                     <span class="badge bg-danger">{{ employee.leaverequest_set|dictsort:"status"|slice:":rejected"|length }}</span>
                 </div>

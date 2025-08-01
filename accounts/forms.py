@@ -43,7 +43,7 @@ class CustomUserCreationForm(UserCreationForm):
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
-        if UserProfile.objects.filter(email=email).exists():
+        if User.objects.filter(email=email).exists():
             raise ValidationError("A user with this email already exists.")
         return email
 
@@ -68,16 +68,6 @@ class CustomUserCreationForm(UserCreationForm):
             )
         return user
         return password1
-
-    def save(self, commit=True):
-        user = super().save(commit=False)
-        user.email = self.cleaned_data['email']
-        user.first_name = self.cleaned_data['first_name']
-        user.last_name = self.cleaned_data['last_name']
-        if commit:
-            user.save()
-        return user
-
 class CustomAuthenticationForm(AuthenticationForm):
     username = forms.CharField(widget=forms.TextInput(attrs={
         'class': 'form-control',
