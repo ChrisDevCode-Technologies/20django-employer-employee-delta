@@ -25,7 +25,7 @@ class LeaveRequest(models.Model):
     end_date = models.DateField()
     reason = models.TextField()
     status = models.CharField(max_length=20, choices=[('Pending', 'Pending'), ('Approved', 'Approved'), ('Rejected', 'Rejected')], default='Pending')
-    created_at = models.DateTimeField(auto_now_add=True)
+    created_at = models.DateTimeField(default=now)
 
     def approve(self):
         self.status = 'Approved'

@@ -1,0 +1,71 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="portal-container">
+    <div class="portal-header">
+        <h1>Welcome to the Employee Portal <strong>{{ employee.user.username }}</strong></h1>
+        {{ employee.department}}
+    </div>
+
+
+    <!-- Leave Request Form -->
+    <section class="leave-request-section">
+        <h2>Submit Leave Request</h2>
+        <form method="post" action="" class="mb-4">{% csrf_token %}
+            {% for field in form %}
+                <div class="mb-3">
+                    <label for="{{ field.id_for_label }}" class="form-label">{{ field.label }}:</label>
+                    {{ field }}
+                    {% if field.help_text %}
+                        <div class="form-text">{{ field.help_text }}</div>
+                    {% endif %}
+                    {% if field.errors %}
+                        <div class="text-danger small">{{ field.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+            <button type="submit" class="btn btn-primary">Submit Request</button>
+        </form>
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">{{ form.non_field_errors }}</div>
+        {% endif %}
+        {% if messages %}
+            <ul class="messages">
+                {% for message in messages %}
+                    <li>{{ message }}</li>
+                {% endfor %}
+            </ul>
+        {% endif %}
+    </section>
+
+    <!-- Leave Requests List -->
+    <section class="leave-requests-list">
+        <h2>Your Leave Requests</h2>
+        <table class="table table-striped" summary="List of your leave requests">
+            <caption class="visually-hidden">Your Leave Requests</caption>
+            <thead>
+                <tr>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Reason</th>
+                    <th>Status</th>
+                    <th>Submitted At</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for request in leave_requests %}
+                <tr>
+                    <td>{{ request.start_date }}</td>
+                    <td>{{ request.end_date }}</td>
+                    <td>{{ request.reason }}</td>
+                    <td>{{ request.status }}</td>
+                    <td>{{ request.created_at }}</td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5">No leave requests found.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </section>
+</div>
+{% endblock %}
